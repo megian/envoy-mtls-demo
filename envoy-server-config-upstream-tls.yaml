@@ -1,0 +1,68 @@
+static_resources:
+
+  listeners:
+  - name: tcp_listener
+    address:
+      socket_address:
+        address: '::'
+        port_value: 8000
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.tcp_proxy
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+          stat_prefix: tcp_stats
+          cluster: tcp_service
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          require_client_certificate: true
+          common_tls_context:
+            tls_params:
+              # https://github.com/envoyproxy/envoy/issues/9300#issuecomment-1525624873
+              # Both min and maximum needs to be configured
+              tls_minimum_protocol_version: TLSv1_3
+              tls_maximum_protocol_version: TLSv1_3
+              cipher_suites:
+                - ECDHE-ECDSA-AES256-GCM-SHA384
+            tls_certificates:
+              - certificate_chain:
+                  filename: tls/server.crt
+                private_key:
+                  filename: tls/server.key
+            validation_context:
+              trusted_ca:
+                filename: tls/ca.crt
+              match_typed_subject_alt_names:
+              - san_type: DNS
+                matcher:
+                  exact: localhost
+  clusters:
+  - name: tcp_service
+    connect_timeout: 0.25s
+    type: logical_dns
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: tcp_service
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: www.google.com
+                port_value: 443
+    transport_socket:
+      name: envoy.transport_sockets.tls
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+        common_tls_context:
+          tls_certificates:
+            - certificate_chain:
+                filename: tls/client.crt
+              private_key:
+                filename: tls/client.key
+          validation_context:
+            trusted_ca:
+              filename: tls/ca.crt
+
