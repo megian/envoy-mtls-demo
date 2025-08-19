@@ -13,4 +13,4 @@ Cipher Suite: TLS_AES_256_GCM_SHA384
 
 * [Dedicated Infrastructure in a Multitenant World - Carlos Sanchez, Adobe](https://www.youtube.com/watch?v=nWKu7ThNKwM)
 * [Using Envoy with X.509-SVIDs ](https://spiffe.io/docs/latest/microservices/envoy-x509/readme/)
-* [Envoy Reverse Connections: Communicate with downstream envoy behind a private network](Envoy Reverse Connections: Communicate with downstream envoy behind a private network)
+* [Envoy Reverse Connections: Communicate with downstream envoy behind a private network](https://github.com/envoyproxy/envoy/issues/33320)
